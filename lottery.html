@@ -48,6 +48,11 @@
       background-color: yellow;
       color: #333;
     }
+
+    .lottery-nums .disabled{
+      pointer-events: none;
+    }
+
   </style>
 </head>
 
@@ -78,26 +83,81 @@
 
   <script type="text/javascript">
     let i;
+    let selectednumber = 0; //已選號碼總數
+    let draw = false; //是否已兌獎過
 
     // 產生 49 顆按鈕
-    for (i = 1; i < 50; i++) {
+    for (i = 1; i < 50; i++)
+    {
       $('.lottery-nums').append('<div>' + i + '</div>');
     }
 
     // 1. 為數字按鈕加入事件
-    $('.lottery-nums div').on('click', function () {
-
+    $('.lottery-nums div').on('click', function (e) {
+      if($(e.target).hasClass('selected')===true) //如果該號碼已被選過
+      {
+        $(e.target).removeClass('selected'); //取消選取
+        selectednumber = selectednumber - 1; //已選號碼總數-1
+      }
+      else if($(e.target).hasClass('selected')===false) //如果該號碼未被選
+      {
+        if(selectednumber<6) //已選號碼總數低於6
+        {
+          $(e.target).addClass('selected'); //選取號碼
+          selectednumber = selectednumber + 1; //已選號碼總數+1
+        }
+        else if(selectednumber=6) //已選號碼總數>=6
+        {
+          alert('已選滿六個數字');
+        }
+      }
+      console.log(selectednumber);
     });
 
     // 重設按鈕
     $('.reset').on('click', function () {
-
+      selectednumber = 0;
+      draw = false;
+      $('.lottery-nums div').removeClass('selected');
+      $('.lottery-nums div').removeClass('highlight');
+      $('.lottery-result > span').text('');
+      $('.lottery-nums div').removeClass('disabled');
+      console.log(selectednumber);  
     });
 
 
     // 兌獎按鈕
     $('.btn-lottery').on('click', function () {
-
+      if(selectednumber<6)
+      {
+        alert('未選滿六個號碼，無法兌獎');
+      }
+      else if(draw===true)
+      {
+        alert('已兌獎，請重設');
+      }
+      else
+      {
+        draw=true;
+        //產生六個開獎號碼
+        let lottery = [];
+        let number;
+        while (lottery.length < 6) 
+        {
+          number = parseInt(Math.random() * 49 + 1, 10);
+          if (lottery.indexOf(number) === -1) {
+          lottery.push(number);
+          }
+        }
+        //顯示六個開獎號碼(文字)
+        $('.lottery-result > span').text(lottery);
+        //顯示六個開獎號碼(對應按鈕)
+        for (let i = 0; i < 6; i++) {
+          $('div').eq(lottery[i] + 1).addClass('highlight');
+        }
+        //號碼不可再被點擊產生事件
+        $('.lottery-nums div').addClass('disabled');
+      }
     });
 
   </script>
